@@ -1,0 +1,30 @@
+#!/bin/sh
+if ! [ -f ../tools/iec2c ]; then
+	cd matiec
+	./configure
+	make
+	cp iec2c ../tools/.
+	cd ..
+fi
+
+cd src
+! [ -f ../tools/st_optimizer ] && g++ st_optimizer.cpp -o ../tools/st_optimizer
+! [ -f ../tools/glue_generator ] && g++ glue_generator.cpp -o ../tools/glue_generator
+cd ..
+
+echo Skipping DNP3 installation
+#mv ./core/dnp3.cpp ./core/dnp3.disabled 2> /dev/null
+#mv ./core/dnp3_dummy.disabled ./core/dnp3_dummy.cpp 2> /dev/null
+#cp -f ./core/core_builders/dnp3_disabled/*.* ./core/core_builders/
+
+cd core
+echo Generating object files...
+../tools/st_optimizer ../st/st_file.st ../st/out.st
+../tools/iec2c -I ../lib ../st/out.st
+ARCH=arm /Devel/NOVAsom_SDK/FileSystem/P_Base/output/host/bin/arm-linux-g++ -std=gnu++11 -I ./lib -c Config0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal
+ARCH=arm /Devel/NOVAsom_SDK/FileSystem/P_Base/output/host/bin/arm-linux-g++ -std=gnu++11 -I ./lib -c Res0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal
+echo Generating glueVars.cpp
+../tools/glue_generator
+ARCH=arm /Devel/NOVAsom_SDK/FileSystem/P_Base/output/host/bin/arm-linux-g++ -std=gnu++11 *.cpp *.o -o ../novaplc -I./lib -lrt -lpthread -fpermissive
+cd ..
+ARCH=arm /Devel/NOVAsom_SDK/FileSystem/P_Base/output/host/bin/arm-linux-g++ -std=gnu++11 writefifo.c -o  writefifo
