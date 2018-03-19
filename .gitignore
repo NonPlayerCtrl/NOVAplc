@@ -48,6 +48,12 @@ Module.symvers
 /vmlinuz
 /System.map
 /Module.markers
+/novaplc
+/writefifo
+/src/glue_generator
+/src/st_optimizer
+/matiec/config.log
+
 
 #
 # Debian directory (make deb-pkg)
