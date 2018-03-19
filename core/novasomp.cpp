@@ -1,7 +1,7 @@
 //-----------------------------------------------------------------------------
-// Copyright 2015 Thiago Alves
+// Copyright 2018 Fil
 //
-// Based on the LDmicro software by Jonathan Westhues
+// Based on the software by Thiago Alves
 // This file is part of the OpenPLC Software Stack.
 //
 // OpenPLC is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 // where it is running, you may only need to change this file. All the I/O
 // related stuff is here. Basically it provides functions to read and write
 // to the OpenPLC internal buffers in order to update I/O state.
-// Thiago Alves, Dec 2015
+// Fil, Mar 2018
 //-----------------------------------------------------------------------------
 
 #include <stdio.h>
@@ -36,20 +36,8 @@
 #define MAX_OUTPUT 		1
 #define MAX_ANALOG_OUT	0
 
-/********************I/O PINS CONFIGURATION*********************
- * A good source for RaspberryPi I/O pins information is:
- * http://pinout.xyz
- *
- * The buffers below works as an internal mask, so that the
- * OpenPLC can access each pin sequentially
-****************************************************************/
-//inBufferPinMask: pin mask for each input, which
-//means what pin is mapped to that OpenPLC input
-int inBufferPinMask[MAX_INPUT] = { 142 };
-
-//outBufferPinMask: pin mask for each output, which
-//means what pin is mapped to that OpenPLC output
-int outBufferPinMask[MAX_OUTPUT] =	{ 144 };
+int inBufferPinMask[MAX_INPUT]	=	{ 142 };
+int outBufferPinMask[MAX_OUTPUT]=	{ 144 };
 
 //analogOutBufferPinMask: pin mask for the analog PWM
 //output of the RaspberryPi
