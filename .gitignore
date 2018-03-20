@@ -52,8 +52,12 @@ Module.symvers
 /writefifo
 /src/glue_generator
 /src/st_optimizer
+/tools/
+/writefifo 
+/novaplc 
+/matiec/iec2iec 
+/matiec/iec2c
 /matiec/config.log
-writefifo tools/st_optimizer tools/iec2c tools/glue_generator novaplc matiec/iec2iec matiec/iec2c
 
 
 #
@@ -72,7 +76,6 @@ writefifo tools/st_optimizer tools/iec2c tools/glue_generator novaplc matiec/iec
 #
 # git files that we don't want to ignore even it they are dot-files
 #
-!.gitignore
 !.mailmap
 
 #
