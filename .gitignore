@@ -53,6 +53,7 @@ Module.symvers
 /src/glue_generator
 /src/st_optimizer
 /matiec/config.log
+writefifo tools/st_optimizer tools/iec2c tools/glue_generator novaplc matiec/iec2iec matiec/iec2c
 
 
 #
