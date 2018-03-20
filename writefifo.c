@@ -17,8 +17,6 @@ char plcfifo[32];
 char	readlin[32];
     sprintf(plcfifo,"/tmp/plcfifo");
 
-    /* create the FIFO (named pipe) */
-    mkfifo(plcfifo, 0666);
     printf("argc = %d\n",argc);
     printf("argv = %s\n",argv[argc-1]);
 
@@ -35,9 +33,6 @@ char	readlin[32];
     fd = open(plcfifo, O_WRONLY);
     write(fd, readlin, strlen(readlin));
     close(fd);
-
-    /* remove the FIFO */
-    unlink(plcfifo);
 
     exit(0);
 }

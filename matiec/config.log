@@ -140,11 +140,11 @@ configure:4175: checking lex output file root
 configure:4189: result: lex.yy
 configure:4194: checking lex library
 configure:4208: gcc -o conftest    conftest.c   >&5
-/tmp/ccf2f4MF.o: In function `yylex':
+/tmp/cc06JchB.o: In function `yylex':
 conftest.c:(.text+0x6fb): undefined reference to `yywrap'
-/tmp/ccf2f4MF.o: In function `input':
+/tmp/cc06JchB.o: In function `input':
 conftest.c:(.text+0x11ba): undefined reference to `yywrap'
-/tmp/ccf2f4MF.o: In function `main':
+/tmp/cc06JchB.o: In function `main':
 conftest.c:(.text+0x1e87): undefined reference to `yywrap'
 collect2: error: ld returned 1 exit status
 configure:4208: $? = 1
@@ -5550,11 +5550,11 @@ configure: failed program was:
 configure:4218: result: none needed
 configure:4224: checking whether yytext is a pointer
 configure:4241: gcc -o conftest    conftest.c   >&5
-/tmp/cc6ZRDCR.o: In function `yylex':
+/tmp/ccRhvj4S.o: In function `yylex':
 conftest.c:(.text+0x6fb): undefined reference to `yywrap'
-/tmp/cc6ZRDCR.o: In function `input':
+/tmp/ccRhvj4S.o: In function `input':
 conftest.c:(.text+0x11ba): undefined reference to `yywrap'
-/tmp/cc6ZRDCR.o: In function `main':
+/tmp/ccRhvj4S.o: In function `main':
 conftest.c:(.text+0x1e87): undefined reference to `yywrap'
 collect2: error: ld returned 1 exit status
 configure:4241: $? = 1
@@ -8045,7 +8045,7 @@ configure:5926: gcc -o conftest    conftest.c  >&5
 conftest.c:64:6: warning: conflicting types for built-in function 'pow' [-Wbuiltin-declaration-mismatch]
  char pow ();
       ^~~
-/tmp/cc2p713P.o: In function `main':
+/tmp/ccBvqapI.o: In function `main':
 conftest.c:(.text+0xa): undefined reference to `pow'
 collect2: error: ld returned 1 exit status
 configure:5926: $? = 1

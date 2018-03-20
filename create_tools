@@ -1,5 +1,21 @@
 #!/bin/sh
-REFERENCE_FILESYSTEM="/Devel/NOVAsom_SDK/FileSystem/P_Base"
+REFERENCE_FILESYSTEM_P="/Devel/NOVAsom_SDK/FileSystem/P_Base"
+REFERENCE_FILESYSTEM_U5="/Devel/NOVAsom_SDK/FileSystem/U5_Base"
+echo ""
+echo "Select the board for which compile the NOVAplc application"
+echo " 1 : NOVAsomP"
+echo " 2 : NOVAsomU5"
+echo "Enter your selection : "
+read VAR
+if [ "$VAR" = "1" ]; then
+        echo "You selected NOVAsomP"
+	REFERENCE_FILESYSTEM=${REFERENCE_FILESYSTEM_P}
+fi
+if [ "$VAR" = "2" ]; then
+        echo "You selected NOVAsomU5"
+	REFERENCE_FILESYSTEM=${REFERENCE_FILESYSTEM_U5}
+fi
+
 ARMGCC="${REFERENCE_FILESYSTEM}/output/host/bin/arm-linux-g++ -std=gnu++11"
 if ! [ -d ${REFERENCE_FILESYSTEM} ]; then
 	echo "Please select an existing file system as base file system"
@@ -25,6 +41,7 @@ echo "Generating executable ... "
 ARCH=arm ${ARMGCC} -I ./lib -c Config0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal
 ARCH=arm ${ARMGCC} -I ./lib -c Res0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal
 ../tools/glue_generator
-ARCH=arm ${ARMGCC} *.cpp *.o -o ../novaplc -I./lib -lrt -lpthread -fpermissive
+ARCH=arm ${ARMGCC} *.cpp *.o -o ../novaplc -I./lib -lrt -lpthread -lmodbus -fpermissive -I${REFERENCE_FILESYSTEM}/output/host/arm-buildroot-linux-gnueabihf/sysroot/usr/include/modbus
+echo "ARCH=arm ${ARMGCC} *.cpp *.o -o ../novaplc -I./lib -lrt -lpthread -fpermissive -I${REFERENCE_FILESYSTEM}/output/host/arm-buildroot-linux-gnueabihf/sysroot/usr/include/modbus"
 cd ..
 ARCH=arm ${ARMGCC} writefifo.c -o  writefifo

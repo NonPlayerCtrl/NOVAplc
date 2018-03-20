@@ -106,8 +106,8 @@ double measureTime(struct timespec *timer_start)
 }
 
 void print_usage() {
-    printf("Usage: ./openplc -m modbus_port -d dnp3_port\n");
-    printf("./openplc will run with modbus on port 502 and ");
+    printf("Usage: ./novaplc -m modbus_port -d dnp3_port\n");
+    printf("./novaplc will run with modbus on port 502 and ");
     printf("dnp3 on port 20000\n");
     printf("Selecting only modbus or only dnp3 will only run that ");
     printf("protocol\n");
@@ -155,7 +155,7 @@ int	runstop=0 , readlen=0;
 
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
-    printf("OpenPLC Software running...\n");
+    printf("novaplc Software running...\n");
 
     //======================================================
     //                 PLC INITIALIZATION
@@ -180,14 +180,17 @@ int	runstop=0 , readlen=0;
     updateBuffersOut();
     pthread_t modbus_thread;
     pthread_t dnp3_thread;
+    if(modbus_flag ) 
+        pthread_create(&modbus_thread, NULL, modbusThread, NULL);
 
+    /*
     if(modbus_flag || (!modbus_flag && !dnp3_flag)) {
         pthread_create(&modbus_thread, NULL, modbusThread, NULL);
     }
     if(dnp3_flag || (!modbus_flag && !dnp3_flag)) {
         pthread_create(&dnp3_thread, NULL, dnp3Thread, NULL);
     }
-
+	*/
     //======================================================
     //          PERSISTENT STORAGE INITIALIZATION
     //======================================================
@@ -222,6 +225,7 @@ int	runstop=0 , readlen=0;
 	clock_gettime(CLOCK_MONOTONIC, &timer_start);
 
 	mkfifo(plcfifo, 0666);
+    	fd = open(plcfifo, O_RDONLY | O_NONBLOCK | O_CREAT);
 
 	//======================================================
 	//                    MAIN LOOP
@@ -232,9 +236,7 @@ int	runstop=0 , readlen=0;
 	for(;;)
 	{
 		bzero(buf,MAX_BUF);
-    		fd = open(plcfifo, O_RDONLY);
     		readlen = read(fd, buf, MAX_BUF);
-    		close(fd);
 		if ( readlen > 0 )
 			printf("Received %d: %s\n",readlen, buf);
 
@@ -245,6 +247,7 @@ int	runstop=0 , readlen=0;
 		if ( strcmp(buf,"STOP") == 0 )
 		{
 			emergency_stop();
+    			close(fd);
 			exit(0);
 		}
 		if ( runstop == 1 )
