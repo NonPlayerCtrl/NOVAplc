@@ -43,6 +43,9 @@ int outBufferPinMask[MAX_OUTPUT]=	{ 144 };
 //output of the RaspberryPi
 //int analogOutBufferPinMask[MAX_ANALOG_OUT] = { 1 };
 
+char	gpioname_in[MAX_INPUT][64];
+char	gpioname_out[MAX_OUTPUT][64];
+
 //-----------------------------------------------------------------------------
 // This function is called by the main OpenPLC routine when it is initializing.
 // Hardware initialization procedures should be here.
@@ -57,6 +60,8 @@ char	cmd[256];
 		system(cmd);
 		sprintf(cmd,"echo in > /sys/class/gpio/gpio%d/direction",inBufferPinMask[i]);
 		system(cmd);
+		sprintf(gpioname_in[i],"/sys/class/gpio/gpio%d/value",inBufferPinMask[i]);
+
 	}
 	//set pins as output
 	for (int i = 0; i < MAX_OUTPUT; i++)
@@ -65,6 +70,7 @@ char	cmd[256];
 		system(cmd);
 		sprintf(cmd,"echo out > /sys/class/gpio/gpio%d/direction",outBufferPinMask[i]);
 		system(cmd);
+		sprintf(gpioname_out[i],"/sys/class/gpio/gpio%d/value",outBufferPinMask[i]);
 	}
 }
 
@@ -76,18 +82,15 @@ char	cmd[256];
 void updateBuffersIn()
 {
 FILE *fp;
-char    cmd[256];
-
         pthread_mutex_lock(&bufferLock); //lock mutex
         //INPUT
         for (int i = 0; i < MAX_INPUT; i++)
         {
                 if (bool_input[i/8][i%8] != NULL)
                 {
-                        sprintf(cmd,"/sys/class/gpio/gpio%d/value" , inBufferPinMask[i]);
-                        fp = fopen(cmd,"r");
+                        fp = fopen(gpioname_in[i],"r");
                         *bool_input[i/8][i%8] = fgetc(fp) & 0x01 ;
-                        fclose(fp);
+			fclose(fp);
                 }
         }
         pthread_mutex_unlock(&bufferLock); //unlock mutex
@@ -99,11 +102,9 @@ char    cmd[256];
 // must be updated to reflect the actual state of the output pins. The mutex buffer_lock
 // must be used to protect access to the buffers on a threaded environment.
 //-----------------------------------------------------------------------------
-int cnt = 0;
-int on = 0;
 void updateBuffersOut()
 {
-char    cmd[256];
+FILE	*fp;
         pthread_mutex_lock(&bufferLock); //lock mutex
 
         //OUTPUT
@@ -111,8 +112,9 @@ char    cmd[256];
         {
                 if (bool_output[i/8][i%8] != NULL)
                 {
-                      sprintf(cmd,"echo %d > /sys/class/gpio/gpio%d/value" , *bool_output[i/8][i%8] , outBufferPinMask[i]);
-               		system(cmd);
+			fp = fopen(gpioname_out[i],"w");
+			fprintf(fp,"%x",*bool_output[i/8][i%8]);
+			fclose(fp);
 		}
         }
         pthread_mutex_unlock(&bufferLock); //unlock mutex
@@ -120,12 +122,13 @@ char    cmd[256];
 
 void emergency_stop()
 {
-char    cmd[256];
+FILE	*fp;
 
-for (int i = 0; i < MAX_OUTPUT; i++)
+	for (int i = 0; i < MAX_OUTPUT; i++)
         {
-                sprintf(cmd,"echo 0 > /sys/class/gpio/gpio%d/value" , outBufferPinMask[i] , outBufferPinMask[i]);
-                system(cmd);
+		fp = fopen(gpioname_out[i],"w");
+		fprintf(fp,"0");
+		fclose(fp);
         }
 }
 

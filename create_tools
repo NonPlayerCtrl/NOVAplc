@@ -1,12 +1,21 @@
 #!/bin/sh
-REFERENCE_FILESYSTEM_P="/Devel/NOVAsom_SDK/FileSystem/P_Base"
+REFERENCE_FILESYSTEM_P="/Devel/NOVAsom_SDK/FileSystem/P_plc"
 REFERENCE_FILESYSTEM_U5="/Devel/NOVAsom_SDK/FileSystem/U5_Base"
-echo ""
-echo "Select the board for which compile the NOVAplc application"
-echo " 1 : NOVAsomP"
-echo " 2 : NOVAsomU5"
-echo -n "Enter your selection : "
-read VAR
+if [ "$1" = "" ]; then
+	echo ""
+	echo "Select the board for which compile the NOVAplc application"
+	echo " 1 : NOVAsomP"
+	echo " 2 : NOVAsomU5"
+	echo -n "Enter your selection : "
+	read VAR
+else
+	if [ "$1" = "P" ]; then
+		VAR="1";
+	fi
+	if [ "$1" = "U5" ]; then
+		VAR="2";
+	fi
+fi
 if [ "$VAR" = "1" ]; then
         echo "You selected NOVAsomP"
 	REFERENCE_FILESYSTEM=${REFERENCE_FILESYSTEM_P}
@@ -41,10 +50,10 @@ cd core
 echo "Generating executables ... "
 ../tools/st_optimizer ../st/st_file.st ../st/out.st >/dev/null 2>&1
 ../tools/iec2c -I ../lib ../st/out.st >/dev/null 2>&1
-ARCH=arm ${ARMGCC} -I ./lib -c Config0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal >/dev/null 2>&1
-ARCH=arm ${ARMGCC} -I ./lib -c Res0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal >/dev/null 2>&1
+ARCH=arm ${ARMGCC} -I./lib -c Config0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal >/dev/null 2>&1
+ARCH=arm ${ARMGCC} -I./lib -c Res0.c -lasiodnp3 -lasiopal -lopendnp3 -lopenpal >/dev/null 2>&1
 ../tools/glue_generator
-ARCH=arm ${ARMGCC} *.cpp *.o -o ../novaplc -I./lib -lrt -lpthread -lmodbus -fpermissive -I${REFERENCE_FILESYSTEM}/output/host/arm-buildroot-linux-gnueabihf/sysroot/usr/include/modbus >/dev/null 2>&1
+ARCH=arm ${ARMGCC} *.cpp *.o -o ../novaplc -I./lib -lrt -lpthread -lmodbus -fpermissive -I${REFERENCE_FILESYSTEM}/output/host/arm-buildroot-linux-gnueabihf/sysroot/usr/include/modbus
 cd ..
 ARCH=arm ${ARMGCC} writefifo.c -o  writefifo >/dev/null 2>&1
 echo "Done"

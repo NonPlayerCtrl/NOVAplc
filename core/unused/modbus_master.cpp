@@ -468,7 +468,7 @@ void *exchangeData(void *arg)
 //-----------------------------------------------------------------------------
 void initializeHardware()
 {
-
+char    cmd[256];
 	parseConfig();
 
 	for (int i = 0; i < num_devices; i++)
@@ -487,6 +487,25 @@ void initializeHardware()
 
 	pthread_t thread;
 	pthread_create(&thread, NULL, exchangeData, NULL);
+
+        //set pins as input
+        for (int i = 0; i < MAX_LOCAL_INPUT; i++)
+        {       
+                sprintf(cmd,"echo %d > /sys/class/gpio/export",inBufferPinMask[i]);
+                system(cmd);
+                sprintf(cmd,"echo in > /sys/class/gpio/gpio%d/direction",inBufferPinMask[i]);
+                system(cmd);
+        }
+        //set pins as output
+        for (int i = 0; i < MAX_LOCAL_OUTPUT; i++)
+        {       
+                sprintf(cmd,"echo %d > /sys/class/gpio/export" , outBufferPinMask[i]);
+                system(cmd);
+                sprintf(cmd,"echo out > /sys/class/gpio/gpio%d/direction",outBufferPinMask[i]);
+                system(cmd);
+        }
+	printf("Master initialized\n");
+	
 }
 
 //-----------------------------------------------------------------------------
@@ -496,6 +515,8 @@ void initializeHardware()
 //-----------------------------------------------------------------------------
 void updateBuffersIn()
 {
+char    cmd[256];
+FILE	*fp;
 	pthread_mutex_lock(&bufferLock); //lock mutex
 	pthread_mutex_lock(&ioLock);
 
@@ -506,6 +527,19 @@ void updateBuffersIn()
 	}
 
 	pthread_mutex_unlock(&ioLock);
+
+	//INPUT
+        for (int i = 0; i < MAX_LOCAL_INPUT; i++)
+        {
+                if (bool_input[i/8][i%8] != NULL)
+                {
+                        sprintf(cmd,"/sys/class/gpio/gpio%d/value" , inBufferPinMask[i]);
+                        fp = fopen(cmd,"r");
+                        *bool_input[i/8][i%8] = fgetc(fp) & 0x01 ;
+                        fclose(fp);
+                }
+        }
+
 	pthread_mutex_unlock(&bufferLock); //unlock mutex
 }
 
@@ -517,6 +551,7 @@ void updateBuffersIn()
 //-----------------------------------------------------------------------------
 void updateBuffersOut()
 {
+char    cmd[256];
 	pthread_mutex_lock(&bufferLock); //lock mutex
 	pthread_mutex_lock(&ioLock);
 
@@ -527,5 +562,26 @@ void updateBuffersOut()
 	}
 
 	pthread_mutex_unlock(&ioLock);
+        //OUTPUT
+        for (int i = 0; i < MAX_LOCAL_OUTPUT; i++)
+        {
+                if (bool_output[i/8][i%8] != NULL)
+                {
+                      sprintf(cmd,"echo %d > /sys/class/gpio/gpio%d/value" , *bool_output[i/8][i%8] , outBufferPinMask[i]);
+                        system(cmd);
+                }
+        }
+	
 	pthread_mutex_unlock(&bufferLock); //unlock mutex
 }
+void emergency_stop()
+{
+char    cmd[256];
+
+for (int i = 0; i < MAX_LOCAL_OUTPUT; i++)
+        {
+                sprintf(cmd,"echo 0 > /sys/class/gpio/gpio%d/value" , outBufferPinMask[i] , outBufferPinMask[i]);
+                system(cmd);
+        }
+}
+
